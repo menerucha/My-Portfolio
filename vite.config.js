@@ -40,12 +40,13 @@ function geminiChatMiddleware(apiKey) {
         parts: [{ text: message.content }],
       }));
 
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent${!bearerToken && apiKey ? `?key=${apiKey}` : ""}`;
+      const useApiKey = Boolean(apiKey);
+      const url = useApiKey
+        ? `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`
+        : `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent`;
       const headers = { "Content-Type": "application/json" };
-      if (bearerToken) {
+      if (!useApiKey) {
         headers.Authorization = `Bearer ${bearerToken}`;
-      } else {
-        headers["x-goog-api-key"] = apiKey;
       }
 
       const response = await fetch(url, {

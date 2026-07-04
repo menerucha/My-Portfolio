@@ -17,12 +17,13 @@ export default async function handler(req, res) {
   }));
 
   const model = "gemini-2.5-flash";
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent${!bearerToken && apiKey ? `?key=${apiKey}` : ""}`;
+  const useApiKey = Boolean(apiKey);
+  const url = useApiKey
+    ? `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`
+    : `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
   const headers = { "Content-Type": "application/json" };
-  if (bearerToken) {
+  if (!useApiKey) {
     headers.Authorization = `Bearer ${bearerToken}`;
-  } else {
-    headers["x-goog-api-key"] = apiKey;
   }
 
   try {
