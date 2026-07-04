@@ -8,10 +8,12 @@ function geminiChatMiddleware(apiKey) {
       return;
     }
 
-    if (!apiKey) {
+    const apiKey = env.GEMINI_API_KEY;
+    const bearerToken = env.GOOGLE_API_TOKEN;
+    if (!apiKey && !bearerToken) {
       res.statusCode = 500;
       res.setHeader("Content-Type", "application/json");
-      res.end(JSON.stringify({ error: "Server is missing GEMINI_API_KEY" }));
+      res.end(JSON.stringify({ error: "Server is missing GEMINI_API_KEY or GOOGLE_API_TOKEN" }));
       return;
     }
 
@@ -38,21 +40,23 @@ function geminiChatMiddleware(apiKey) {
         parts: [{ text: message.content }],
       }));
 
-      const response = await fetch(
-        "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "x-goog-api-key": apiKey,
-          },
-          body: JSON.stringify({
-            contents,
-            systemInstruction: system ? { parts: [{ text: system }] } : undefined,
-            generationConfig: { maxOutputTokens: 1000 },
-          }),
-        }
-      );
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent${!bearerToken && apiKey ? `?key=${apiKey}` : ""}`;
+      const headers = { "Content-Type": "application/json" };
+      if (bearerToken) {
+        headers.Authorization = `Bearer ${bearerToken}`;
+      } else {
+        headers["x-goog-api-key"] = apiKey;
+      }
+
+      const response = await fetch(url, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({
+          contents,
+          systemInstruction: system ? { parts: [{ text: system }] } : undefined,
+          generationConfig: { maxOutputTokens: 1000 },
+        }),
+      });
 
       const data = await response.json();
 

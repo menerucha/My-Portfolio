@@ -8,11 +8,13 @@ A React + Vite site, ready to deploy on Vercel.
 2. Go to https://vercel.com/new and import the repo.
 3. Vercel will auto-detect Vite — no config changes needed.
 4. **Important — for the AI chat assistant to work:** in your Vercel project, go to
-   **Settings → Environment Variables** and add:
-   - `GEMINI_API_KEY` = your Google Gemini API key (get one free at https://aistudio.google.com/apikey)
+   **Settings → Environment Variables** and add one of these:
+   - `GEMINI_API_KEY` = your Google Gemini API key
+   - `GOOGLE_API_TOKEN` = a valid OAuth bearer token / service account access token
 
-   Without this, the site itself will work fine, but the chat assistant will show a
-   connection error.
+   Then make sure the Google Cloud project has the **Generative AI API** enabled.
+
+   Without valid credentials, the chat assistant will show an authentication error.
 5. Deploy. You'll get a live URL like `rucha-portfolio.vercel.app` you can put on LinkedIn.
 
 ## Deploy without GitHub (CLI)

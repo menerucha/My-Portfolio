@@ -4,29 +4,31 @@ export default async function handler(req, res) {
   }
 
   const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) {
-    return res.status(500).json({ error: "Server is missing GEMINI_API_KEY" });
+  const bearerToken = process.env.GOOGLE_API_TOKEN;
+  if (!apiKey && !bearerToken) {
+    return res.status(500).json({ error: "Server is missing GEMINI_API_KEY or GOOGLE_API_TOKEN" });
   }
 
   const { system, messages } = req.body || {};
 
-  // Convert Anthropic-style messages [{role: "user"|"assistant", content: "..."}]
-  // into Gemini's format: [{role: "user"|"model", parts: [{text: "..."}]}]
   const contents = (messages || []).map((m) => ({
     role: m.role === "assistant" ? "model" : "user",
     parts: [{ text: m.content }],
   }));
 
   const model = "gemini-2.5-flash";
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent${!bearerToken && apiKey ? `?key=${apiKey}` : ""}`;
+  const headers = { "Content-Type": "application/json" };
+  if (bearerToken) {
+    headers.Authorization = `Bearer ${bearerToken}`;
+  } else {
+    headers["x-goog-api-key"] = apiKey;
+  }
 
   try {
     const response = await fetch(url, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-goog-api-key": apiKey,
-      },
+      headers,
       body: JSON.stringify({
         contents,
         systemInstruction: system ? { parts: [{ text: system }] } : undefined,
@@ -38,8 +40,11 @@ export default async function handler(req, res) {
 
     if (!response.ok) {
       const errorMessage = data?.error?.message || data?.error || "Gemini API error";
+      const help = response.status === 401 || response.status === 403
+        ? "Check that your Gemini credentials are valid and that the Generative AI API is enabled in Google Cloud."
+        : "";
       console.error("Gemini API error:", response.status, errorMessage, data);
-      return res.status(response.status).json({ error: errorMessage });
+      return res.status(response.status).json({ error: `${errorMessage} ${help}`.trim() });
     }
 
     const text = data?.candidates?.[0]?.content?.parts?.map((p) => p.text).join("") || "";
