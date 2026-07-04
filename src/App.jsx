@@ -458,8 +458,10 @@ export default function Portfolio() {
           messages: [...msgs.slice(-8), { role: "user", content: `[visitor is currently viewing the "${visibleSection}" section]\n${q}` }]
         })
       });
-      const data = await res.json();
-      const reply = data.content?.[0]?.text || "Sorry, something went wrong.";
+      const data = await res.json().catch(() => ({}));
+      const reply = res.ok
+        ? data.content?.[0]?.text || "Sorry, something went wrong."
+        : data.error || `Server error ${res.status}. Please check deployment logs.`;
       let i = 0;
       const iv = setInterval(() => {
         if (i <= reply.length) { setStream(reply.slice(0, i)); i += 2; }

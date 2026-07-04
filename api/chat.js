@@ -34,16 +34,18 @@ export default async function handler(req, res) {
       }),
     });
 
-    const data = await response.json();
+    const data = await response.json().catch(() => null);
 
     if (!response.ok) {
-      return res.status(response.status).json({ error: data?.error?.message || "Gemini API error" });
+      const errorMessage = data?.error?.message || data?.error || "Gemini API error";
+      console.error("Gemini API error:", response.status, errorMessage, data);
+      return res.status(response.status).json({ error: errorMessage });
     }
 
-    // Normalize to the same shape the frontend expects: data.content[0].text
     const text = data?.candidates?.[0]?.content?.parts?.map((p) => p.text).join("") || "";
     return res.status(200).json({ content: [{ type: "text", text }] });
   } catch (err) {
+    console.error("Gemini fetch failed:", err);
     return res.status(500).json({ error: "Failed to reach Gemini API" });
   }
 }
