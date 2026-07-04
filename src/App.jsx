@@ -21,7 +21,7 @@ STRENGTHS: End-to-end full-stack ownership, AI and LLM engineering, distributed 
 const BASE_SYS = "You are Rucha Mene's AI portfolio assistant, speaking to a recruiter, hiring manager, or visitor.\n\nRULES:\n- Answer ONLY from the knowledge base below. If asked something not covered, say: \"I don't have enough information about that in Rucha's portfolio\" then suggest emailing her.\n- Be concise: 2-4 sentences for simple questions, short bullet points for anything with multiple parts.\n- When discussing a project, mention its concrete metric (accuracy, uptime, latency) and include its GitHub or live link if relevant.\n- If the person seems to be evaluating her for a role, proactively surface the FAQ answer that's relevant (availability, remote, salary) without being asked, when it naturally fits.\n- Never invent facts, links, or numbers not in this document.";
 
 const ROLES = ["Software Engineer","Full Stack Developer","AI Engineer","Problem Solver","Product Builder"];
-const CHIPS = ["Who is Rucha?","Tell me about StockSentry","What AI skills does she have?","Explain SafeHer","Why should we hire her?","What are her strengths?"];
+const CHIPS = ["Who is Rucha Mene?","What is her background?","What kind of work does she do?","Why should we know her?","What makes her different?","What are her strengths?"];
 
 const SKILLS_MAP = {
   "AI & LLM":{ color:"#0d9488", items:["OpenAI API","Anthropic Claude API","RAG Pipelines","Vector DB","Embeddings","Prompt Engineering","FinBERT","XGBoost","HuggingFace Transformers","NLP","LLM Workflows","GenAI Applications"] },
@@ -355,7 +355,7 @@ export default function Portfolio() {
   const [active, setActive] = useState("home");
   const [chatOpen, setChatOpen] = useState(false);
   const [modal, setModal] = useState(null); // { project, imgIdx }
-  const [msgs, setMsgs] = useState([{ role:"assistant", content:"Hi! I am Rucha's AI assistant. Ask me anything about her work, projects, or skills!" }]);
+  const [msgs, setMsgs] = useState([{ role:"assistant", content:"Hi! I’m Rucha’s AI assistant. Ask me anything about who she is, her background, and the kind of work she does." }]);
   const [inp, setInp] = useState("");
   const [busy, setBusy] = useState(false);
   const [stream, setStream] = useState("");
